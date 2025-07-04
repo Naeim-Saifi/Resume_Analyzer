@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-green-100 to-blue-200 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full space-y-6 border-2 border-green-300">
+        <h1 class="text-3xl font-bold text-green-700 text-center mb-4">Upload Resume</h1>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <div class="space-y-2">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                Upload
+            </button>
+        </form>
+    </div>
+</body>
+
+</html>

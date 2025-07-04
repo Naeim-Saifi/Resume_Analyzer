@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Review</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-green-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white shadow-2xl rounded-3xl p-8 max-w-3xl w-full border-2 border-blue-200 space-y-8">
+        <h1 class="text-4xl font-bold text-center text-blue-700 mb-6">Resume Review</h1>
+        <div class="space-y-8">
+
+            <!-- Name Section -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-xl shadow hover:shadow-lg transition duration-300">
+                <h2 class="text-2xl font-bold text-blue-700 mb-2 border-b border-blue-300 pb-2 flex items-center space-x-2">
+                    <span>👤</span>
+                    <span>Name</span>
+                    <span class="ml-4 text-xl text-blue-900">{{ data.Name }}</span>
+                </h2>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-xl shadow hover:shadow-lg transition duration-300">
+                <h2 class="text-2xl font-bold text-green-700 mb-2 border-b border-green-300 pb-2 flex items-center space-x-2">
+                    <span>💼</span>
+                    <span>Skills</span>
+                </h2>
+                <div class="flex flex-wrap gap-3">
+                    {% for skill in data.Skills %}
+                        <span class="bg-green-200 text-green-900 px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-300 cursor-default transition">
+                            {{ skill }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Projects Summary Section -->
+            {% if projects_summary %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-xl shadow hover:shadow-lg transition duration-300">
+                <h2 class="text-2xl font-bold text-yellow-700 mb-2 border-b border-yellow-300 pb-2 flex items-center space-x-2">
+                    <span>🚀</span>
+                    <span>Projects (Summary)</span>
+                </h2>
+                <ul class="list-disc pl-6">
+                    {% for project in projects_summary %}
+                        <li class="mb-4 whitespace-pre-line">{{ project }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Dynamic Resume Sections -->
+            {% with exclude_sections="linkedin,github,email,phone,mobile,contact,skills" %}
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-400 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
+                <h2 class="text-2xl font-bold text-purple-700 mb-4 border-b border-purple-300 pb-2 flex items-center space-x-2">
+                    <span>📄</span>
+                    <span>Resume Sections</span>
+                </h2>
+                {% if all_sections %}
+                    {# Print Experience section first if exists #}
+                    {% for section, content in all_sections.items %}
+                        {% if section|lower == "experience" and content and content != "Not Found" %}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-purple-600 mb-2">{{ section }}</h3>
+                            <p class="text-gray-800 whitespace-pre-wrap">{{ content }}</p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {# Print all other sections except excluded, Projects, Experience, Name #}
+                    {% for section, content in all_sections.items %}
+                        {% if section|lower != "projects" and section|lower != "experience" and section|lower != data.Name|lower and section|lower not in exclude_sections and content and content != "Not Found" %}
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-purple-600 mb-2">{{ section }}</h3>
+                            <p class="text-gray-800 whitespace-pre-wrap">{{ content }}</p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-gray-500">No sections detected.</div>
+                {% endif %}
+            </div>
+            {% endwith %}
+
+            <!-- Suggested Profiles -->
+            <div>
+                <h3 class="text-2xl font-semibold text-purple-700 mb-4">🎯 Suggested Profiles with Matching Score</h3>
+                {% if profiles %}
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for profile in profiles %}
+                            <li class="bg-purple-100 text-purple-900 p-4 rounded-lg shadow hover:scale-105 transition-transform space-y-2">
+                                <div class="font-bold text-lg">✔️ {{ profile.profile }}</div>
+                                <div class="text-sm">Matching Score:
+                                    <span class="font-semibold text-green-700">{{ profile.score }}%</span>
+                                </div>
+                                <!-- Progress Bar -->
+                                <div class="w-full bg-purple-200 rounded-full h-4">
+                                    <div class="bg-green-500 h-4 rounded-full transition-all duration-500" style="width: {{ profile.score }}%;"></div>
+                                </div>
+                                <div class="text-sm mt-2">Matched Skills:
+                                    <span class="font-semibold">{{ profile.matched_skills|join:", " }}</span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="bg-yellow-100 text-yellow-800 p-3 rounded-lg shadow text-center">
+                        No matching profiles found.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Upload Another Resume -->
+            <div class="text-center">
+                <a href="{% url 'upload_resume' %}"
+                    class="inline-block mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                    Upload Another Resume
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
