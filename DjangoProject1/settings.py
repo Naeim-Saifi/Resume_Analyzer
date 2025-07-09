@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'analyzer',
+    'cloudinary',
+    'cloudinary_storage',
 
 ]
 
@@ -76,19 +78,19 @@ WSGI_APPLICATION = 'DjangoProject1.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-
     # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'studentdb',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'Naeim@123',
-    #     'HOST': 'localhost',
-    #     'PORT': '5432',
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'resume',
+        'USER': 'postgres',
+        'PASSWORD': 'Naeim@123',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 
@@ -132,3 +134,22 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dmfkiyswj',
+    'API_KEY': '629543226838745',
+    'API_SECRET': 'VekDPCzA2ryY4RnP_mZ1lV5X87g',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+import cloudinary
+
+cloudinary.config( 
+  cloud_name = CLOUDINARY_STORAGE['CLOUD_NAME'], 
+  api_key = CLOUDINARY_STORAGE['API_KEY'], 
+  api_secret = CLOUDINARY_STORAGE['API_SECRET'] 
+)
+

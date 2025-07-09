@@ -114,6 +114,31 @@
                 {% endif %}
             </div>
 
+            <!-- Job Match Results -->
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold text-red-700 mb-4">Job Portal Matches</h2>
+                {% if job_matches %}
+                    <ul class="space-y-4">
+                        {% for match in job_matches %}
+                            <li class="p-4 rounded-lg shadow {% if match.status == 'Accepted' %}bg-green-50 border-l-4 border-green-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="font-semibold">{{ match.job.title }}</span>
+                                        <span class="ml-2 text-xs text-gray-500">({{ match.score }}% match)</span>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-white text-xs {% if match.status == 'Accepted' %}bg-green-600{% else %}bg-red-600{% endif %}">
+                                        {{ match.status }}
+                                    </span>
+                                </div>
+                                <div class="text-sm mt-2">Matched Skills: <span class="font-semibold">{{ match.matched_skills|join:", " }}</span></div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-gray-500">No jobs posted yet.</div>
+                {% endif %}
+            </div>
+
             <!-- Upload Another Resume -->
             <div class="text-center">
                 <a href="{% url 'upload_resume' %}"
@@ -121,6 +146,15 @@
                     Upload Another Resume
                 </a>
             </div>
+
+<div class="text-center">
+    <a href="{{ resume.cv.url }}" target="_blank"
+    class="inline-block mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+    View Uploaded Resume on Cloudinary
+</a>
+
+</div>
+
         </div>
     </div>
 
