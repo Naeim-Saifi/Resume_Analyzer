@@ -8,7 +8,6 @@ class Resume(models.Model):
     cv_url = models.URLField(blank=True, null=True)  # Will store the direct URL
 
     def save(self, *args, **kwargs):
-        # If a new file is uploaded
         if self.cv and not self.cv_url:
             uploaded = cloudinary.uploader.upload(
                 self.cv,

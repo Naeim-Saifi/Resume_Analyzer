@@ -4,5 +4,5 @@ from analyzer.views import upload_resume
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', upload_resume, name='upload_resume'),
+    path('', upload_resume, name='upload_resume')
 ]

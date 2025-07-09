@@ -129,7 +129,6 @@ def extract_resume_data(uploaded_file):
         for para in doc.paragraphs:
             text += para.text + '\n'
 
-    # Text Extraction and NLP Processing
     name = extract_name(text)
     doc = nlp(text)
     skills = []
