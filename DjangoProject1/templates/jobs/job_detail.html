@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.title }} - Resume Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'jobs:job_list' %}" class="text-gray-600 hover:text-gray-900">Browse Jobs</a>
+                    <a href="{% url 'jobs:my_applications' %}" class="text-gray-600 hover:text-gray-900">My Applications</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <!-- Job Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ job.title }}</h1>
+                <div class="flex items-center space-x-4 text-gray-600 mb-4">
+                    <span class="font-semibold">{{ job.company_name }}</span>
+                    {% if job.location %}
+                        <span>📍 {{ job.location }}</span>
+                    {% endif %}
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-medium">
+                        {{ job.get_experience_level_display }}
+                    </span>
+                </div>
+                {% if job.salary_range %}
+                    <p class="text-gray-700 font-medium">💰 {{ job.salary_range }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Job Description -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Job Description</h2>
+                <div class="text-gray-700 whitespace-pre-line">{{ job.description }}</div>
+            </div>
+
+            <!-- Required Skills -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Required Skills</h2>
+                <div class="flex flex-wrap gap-3">
+                    {% for skill in job.get_skills_list %}
+                        <span class="bg-blue-100 text-blue-800 px-3 py-2 rounded-full text-sm font-medium">
+                            {{ skill }}
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Application Section -->
+            <div class="border-t pt-8">
+                {% if not has_applied %}
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Apply for this Job</h2>
+                    
+                    {% if user_resumes %}
+                        <form method="post" action="{% url 'jobs:apply_job' job.id %}" class="space-y-4">
+                            {% csrf_token %}
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Resume</label>
+                                <select name="resume_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Choose a resume...</option>
+                                    {% for resume in user_resumes %}
+                                        <option value="{{ resume.id }}">{{ resume.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cover Letter (Optional)</label>
+                                <textarea name="cover_letter" rows="4" 
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                          placeholder="Write a brief cover letter explaining why you are interested in this position..."></textarea>
+                            </div>
+
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                Apply Now
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg">
+                            <p class="font-semibold">No Resume Found</p>
+                            <p>You need to upload a resume before applying for jobs.</p>
+                            <a href="{% url 'upload_resume' %}" class="text-yellow-800 underline hover:text-yellow-900">
+                                Upload Resume Now
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                        <p class="font-semibold">✅ Application Submitted</p>
+                        <p>You have already applied for this job. Check your application status in 
+                           <a href="{% url 'jobs:my_applications' %}" class="underline hover:text-green-800">My Applications</a>.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Job Info -->
+            <div class="mt-8 text-sm text-gray-500 border-t pt-4">
+                <p>Posted {{ job.created_at|timesince }} ago</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

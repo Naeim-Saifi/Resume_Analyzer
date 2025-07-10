@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Resume Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white shadow-2xl rounded-3xl p-8 max-w-md w-full border border-green-200">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-green-700 mb-2">Welcome Back</h1>
+            <p class="text-gray-600">Sign in to your account</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="bg-red-100 text-red-700 p-3 rounded-lg">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105">
+                Sign In
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-gray-600">Don't have an account? 
+                <a href="{% url 'signup' %}" class="text-green-600 hover:text-green-800 font-semibold">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

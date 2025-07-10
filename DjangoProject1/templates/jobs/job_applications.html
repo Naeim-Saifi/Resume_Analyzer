@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applications for {{ job.title }} - Resume Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'jobs:admin_dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer - Admin</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'jobs:admin_dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Applications for {{ job.title }}</h2>
+            <p class="text-gray-600">{{ job.company_name }} • {{ applications.count }} application{{ applications.count|pluralize }}</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg bg-green-100 text-green-700">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if applications %}
+            <div class="space-y-6">
+                {% for application in applications %}
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    {{ application.applicant.first_name }} {{ application.applicant.last_name }}
+                                </h3>
+                                <p class="text-gray-600">{{ application.applicant.email }}</p>
+                            </div>
+                            <div class="text-right">
+                                <form method="post" action="{% url 'jobs:update_application_status' application.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <select name="status" onchange="this.form.submit()" 
+                                            class="px-3 py-1 rounded-full text-sm font-semibold border-0 focus:ring-2 focus:ring-blue-500
+                                                   {% if application.status == 'accepted' %}bg-green-100 text-green-800
+                                                   {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                                   {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="accepted" {% if application.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                                        <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <p class="text-sm text-gray-500">Match Score</p>
+                                <div class="flex items-center">
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ application.match_score }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-700">{{ application.match_score }}%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Applied</p>
+                                <p class="font-medium text-gray-900">{{ application.applied_at|date:"M d, Y" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Resume</p>
+                                {% if application.resume.cv_url %}
+                                    <a href="{{ application.resume.cv_url }}" target="_blank" 
+                                       class="text-blue-600 hover:text-blue-800 font-medium">
+                                        View Resume
+                                    </a>
+                                {% else %}
+                                    <span class="text-gray-500">No resume available</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if application.matched_skills %}
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-500 mb-2">Matched Skills</p>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for skill in application.matched_skills %}
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                            {{ skill }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if application.cover_letter %}
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-500 mb-2">Cover Letter</p>
+                                <div class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+                                    {{ application.cover_letter }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="text-sm text-gray-500">
+                            Applied {{ application.applied_at|timesince }} ago
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📋</div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Applications Yet</h3>
+                <p class="text-gray-600">Applications for this job will appear here</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
