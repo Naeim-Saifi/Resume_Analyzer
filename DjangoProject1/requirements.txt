@@ -1,0 +1,11 @@
+Django==5.2.3
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
+python-decouple==3.8
+dj-database-url==2.2.0
+spacy==3.8.2
+python-docx==1.1.2
+pdfminer.six==20240706
+psycopg2-binary==2.9.9
+gunicorn==23.0.0
+whitenoise==6.8.2

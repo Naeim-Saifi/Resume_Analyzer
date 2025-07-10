@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from .forms import ResumeForm
 from .models import Resume, Job
 from .utils import extract_resume_data
@@ -32,8 +33,7 @@ def suggest_profiles(skills):
     return sorted(suggested, key=lambda x: x['score'], reverse=True)
 
 
-
-
+@login_required
 def upload_resume(request):
     if request.method == 'POST':
         form = ResumeForm(request.POST, request.FILES)
