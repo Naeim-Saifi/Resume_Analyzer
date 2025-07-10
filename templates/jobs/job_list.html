@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Jobs - Resume Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <a href="{% url 'jobs:my_applications' %}" class="text-gray-600 hover:text-gray-900">My Applications</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Browse Jobs</h2>
+            <p class="text-gray-600">Find your next opportunity</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <input type="text" name="search" value="{{ search }}" placeholder="Search jobs..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <input type="text" name="location" value="{{ location }}" placeholder="Location..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <select name="experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Experience Levels</option>
+                        {% for value, label in experience_choices %}
+                            <option value="{{ value }}" {% if experience == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Jobs Grid -->
+        {% if jobs %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for job in jobs %}
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ job.title }}</h3>
+                            <p class="text-gray-600 font-medium">{{ job.company_name }}</p>
+                            {% if job.location %}
+                                <p class="text-gray-500 text-sm">📍 {{ job.location }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-gray-700 text-sm line-clamp-3">{{ job.description|truncatewords:20 }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-2">
+                                {% for skill in job.get_skills_list|slice:":3" %}
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {{ skill }}
+                                    </span>
+                                {% endfor %}
+                                {% if job.get_skills_list|length > 3 %}
+                                    <span class="text-gray-500 text-xs">+{{ job.get_skills_list|length|add:"-3" }} more</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    {{ job.get_experience_level_display }}
+                                </span>
+                                {% if job.salary_range %}
+                                    <p class="text-gray-600 text-sm mt-1">💰 {{ job.salary_range }}</p>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'jobs:job_detail' job.pk %}" 
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                                View Details
+                            </a>
+                        </div>
+
+                        <div class="mt-4 text-xs text-gray-500">
+                            Posted {{ job.created_at|timesince }} ago
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <div class="mt-8 flex justify-center">
+                    <nav class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Previous</a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2 bg-blue-600 text-white rounded-lg">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Next</a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+                <p class="text-gray-600">Try adjusting your search criteria</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
