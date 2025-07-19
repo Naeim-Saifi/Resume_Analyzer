@@ -2,7 +2,7 @@ from django import forms
 from .models import Job, JobApplication
 
 
-class JobForm(forms.ModelForm):
+class AdminJobForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['title', 'description', 'skills_required', 'experience_level', 
@@ -37,6 +37,11 @@ class JobForm(forms.ModelForm):
                 'placeholder': 'Company Name'
             }),
         }
+
+
+# Keep the original JobForm for backward compatibility
+class JobForm(AdminJobForm):
+    pass
 
 
 class JobApplicationForm(forms.ModelForm):

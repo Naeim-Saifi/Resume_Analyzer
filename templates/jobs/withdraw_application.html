@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Application - {{ application.job.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <a href="{% url 'jobs:my_applications' %}" class="text-gray-600 hover:text-gray-900">My Applications</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Withdraw Application</h1>
+                <p class="text-gray-600">Are you sure you want to withdraw your application?</p>
+            </div>
+
+            <!-- Application Details -->
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Application Details</h2>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">Job Title</p>
+                        <p class="font-medium text-gray-900">{{ application.job.title }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Company</p>
+                        <p class="font-medium text-gray-900">{{ application.job.company_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Applied Date</p>
+                        <p class="font-medium text-gray-900">{{ application.applied_at|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Current Status</p>
+                        <p class="font-medium text-gray-900">{{ application.get_status_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Match Score</p>
+                        <p class="font-medium text-gray-900">{{ application.match_score }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
+                <div class="flex">
+                    <div class="text-red-600 mr-3">⚠️</div>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-800">Warning</h3>
+                        <p class="text-sm text-red-700 mt-1">
+                            Withdrawing your application is permanent and cannot be undone. 
+                            You will need to submit a new application if you change your mind.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-4">
+                <a href="{% url 'jobs:application_status' application.id %}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                    Cancel
+                </a>
+                <form method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition">
+                        Withdraw Application
+                    </button>
+                </form>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-8 text-center">
+                <p class="text-sm text-gray-500">
+                    Need help? <a href="#" class="text-blue-600 hover:text-blue-800">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

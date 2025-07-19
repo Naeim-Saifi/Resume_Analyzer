@@ -207,3 +207,14 @@ def extract_resume_data_from_text(text):
         'ProjectsSummary': summarized_projects
     }
     return data
+
+
+
+def calculate_match_score(resume_skills, job_skills_str):
+    job_skills = [skill.strip().lower() for skill in job_skills_str.split(",") if skill.strip()]
+    resume_skills_set = set(skill.lower() for skill in resume_skills)
+    job_skills_set = set(job_skills)
+
+    matched_skills = list(resume_skills_set & job_skills_set)
+    score = (len(matched_skills) / len(job_skills_set)) * 100 if job_skills_set else 0
+    return round(score, 2), matched_skills

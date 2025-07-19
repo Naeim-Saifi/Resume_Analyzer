@@ -11,6 +11,42 @@
 
 <body class="bg-gradient-to-br from-blue-50 to-green-100 min-h-screen flex items-center justify-center p-4">
 
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-lg border-b z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <a href="{% url 'jobs:job_list' %}" class="text-gray-600 hover:text-gray-900">Browse Jobs</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-20">
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-3xl mx-auto mb-6">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} 
+                    {% if message.tags == 'success' %}bg-green-100 border-green-500 text-green-700
+                    {% elif message.tags == 'info' %}bg-blue-100 border-blue-500 text-blue-700
+                    {% elif message.tags == 'warning' %}bg-yellow-100 border-yellow-500 text-yellow-700
+                    {% elif message.tags == 'error' %}bg-red-100 border-red-500 text-red-700
+                    {% endif %} 
+                    border-l-4 p-4 rounded-lg shadow mb-4">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     <div class="bg-white shadow-2xl rounded-3xl p-8 max-w-3xl w-full border-2 border-blue-200 space-y-8">
         <h1 class="text-4xl font-bold text-center text-blue-700 mb-6">Resume Review</h1>
         <div class="space-y-8">
@@ -86,76 +122,289 @@
             </div>
             {% endwith %}
 
-            <!-- Suggested Profiles -->
-            <div>
-                <h3 class="text-2xl font-semibold text-purple-700 mb-4">🎯 Suggested Profiles with Matching Score</h3>
-                {% if profiles %}
-                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {% for profile in profiles %}
-                            <li class="bg-purple-100 text-purple-900 p-4 rounded-lg shadow hover:scale-105 transition-transform space-y-2">
-                                <div class="font-bold text-lg">✔️ {{ profile.profile }}</div>
-                                <div class="text-sm">Matching Score:
-                                    <span class="font-semibold text-green-700">{{ profile.score }}%</span>
-                                </div>
-                                <!-- Progress Bar -->
-                                <div class="w-full bg-purple-200 rounded-full h-4">
-                                    <div class="bg-green-500 h-4 rounded-full transition-all duration-500" style="width: {{ profile.score }}%;"></div>
-                                </div>
-                                <div class="text-sm mt-2">Matched Skills:
-                                    <span class="font-semibold">{{ profile.matched_skills|join:", " }}</span>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="bg-yellow-100 text-yellow-800 p-3 rounded-lg shadow text-center">
-                        No matching profiles found.
+
+<!-- Job Matching Results with Categories -->
+<div class="mt-12 space-y-8">
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-8">🎯 Job Matching Results</h2>
+    
+    {% if job_matches.total_matches > 0 %}
+        <!-- Summary Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-green-100 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-green-700">{{ job_matches.auto_applied|length }}</div>
+                <div class="text-sm text-green-600">Auto Applied</div>
+            </div>
+            <div class="bg-blue-100 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-blue-700">{{ job_matches.high_match|length }}</div>
+                <div class="text-sm text-blue-600">High Match (70%+)</div>
+            </div>
+            <div class="bg-yellow-100 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-yellow-700">{{ job_matches.medium_match|length }}</div>
+                <div class="text-sm text-yellow-600">Medium Match (40-69%)</div>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold text-gray-700">{{ job_matches.low_match|length }}</div>
+                <div class="text-sm text-gray-600">Low Match (15-39%)</div>
+            </div>
+        </div>
+
+        <!-- Auto Applied Jobs -->
+        {% if job_matches.auto_applied %}
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                <span class="mr-2">🚀</span>
+                Automatically Applied & Accepted (80%+ Match)
+            </h3>
+            <div class="space-y-4">
+                {% for match in job_matches.auto_applied %}
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-green-400">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="text-xl font-bold text-gray-900">{{ match.job.title }}</div>
+                            <div class="text-gray-600">{{ match.job.company_name }}</div>
+                            {% if match.job.location %}
+                                <div class="text-sm text-gray-500">📍 {{ match.job.location }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-lg font-bold text-green-600">{{ match.score }}%</div>
+                            <div class="text-sm text-green-700 font-semibold">✅ Auto Applied</div>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-
-            <!-- Job Match Results -->
-            <div class="mt-8">
-                <h2 class="text-2xl font-bold text-red-700 mb-4">Job Portal Matches</h2>
-                {% if job_matches %}
-                    <ul class="space-y-4">
-                        {% for match in job_matches %}
-                            <li class="p-4 rounded-lg shadow {% if match.status == 'Accepted' %}bg-green-50 border-l-4 border-green-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <span class="font-semibold">{{ match.job.title }}</span>
-                                        <span class="ml-2 text-xs text-gray-500">({{ match.score }}% match)</span>
-                                    </div>
-                                    <span class="px-3 py-1 rounded-full text-white text-xs {% if match.status == 'Accepted' %}bg-green-600{% else %}bg-red-600{% endif %}">
-                                        {{ match.status }}
-                                    </span>
-                                </div>
-                                <div class="text-sm mt-2">Matched Skills: <span class="font-semibold">{{ match.matched_skills|join:", " }}</span></div>
-                            </li>
+                    <!-- Progress Bar -->
+                    <div class="w-full mt-3 bg-gray-200 rounded-full h-3">
+                        <div class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: {{ match.score }}%;"></div>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for skill in match.matched_skills %}
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">{{ skill }}</span>
                         {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="text-gray-500">No jobs posted yet.</div>
-                {% endif %}
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <a href="{% url 'jobs:job_detail' match.job.pk %}" 
+                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">View Job Details</a>
+                        {% if match.application_id %}
+                            <a href="{% url 'jobs:application_status' match.application_id %}" 
+                               class="text-green-600 hover:text-green-800 font-medium text-sm">View Application</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+        </div>
+        {% endif %}
 
-            <!-- Upload Another Resume -->
-            <div class="text-center">
-                <a href="{% url 'upload_resume' %}"
-                    class="inline-block mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+        <!-- High Match Jobs -->
+        {% if job_matches.high_match %}
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                <span class="mr-2">🎯</span>
+                Excellent Matches (70%+ Match) - Recommended Applications
+            </h3>
+            <div class="space-y-4">
+                {% for match in job_matches.high_match %}
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-400">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="text-xl font-bold text-gray-900">{{ match.job.title }}</div>
+                            <div class="text-gray-600">{{ match.job.company_name }}</div>
+                            {% if match.job.location %}
+                                <div class="text-sm text-gray-500">📍 {{ match.job.location }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-lg font-bold text-blue-600">{{ match.score }}%</div>
+                            {% if match.application_status %}
+                                <div class="text-sm text-gray-700">{{ match.application_status }}</div>
+                            {% else %}
+                                <div class="text-sm text-green-600">Ready to Apply</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full mt-3 bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: {{ match.score }}%;"></div>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for skill in match.matched_skills %}
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <a href="{% url 'jobs:job_detail' match.job.pk %}" 
+                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">View Job Details</a>
+                        {% if match.can_apply %}
+                            <a href="{% url 'jobs:job_detail' match.job.pk %}#apply" 
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium">Apply Now</a>
+                        {% elif match.application_id %}
+                            <a href="{% url 'jobs:application_status' match.application_id %}" 
+                               class="text-green-600 hover:text-green-800 font-medium text-sm">View Application</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Medium Match Jobs -->
+        {% if job_matches.medium_match %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-yellow-700 mb-4 flex items-center">
+                <span class="mr-2">⚡</span>
+                Good Matches (40-69% Match) - Consider Applying
+            </h3>
+            <div class="space-y-4">
+                {% for match in job_matches.medium_match %}
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-400">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="text-xl font-bold text-gray-900">{{ match.job.title }}</div>
+                            <div class="text-gray-600">{{ match.job.company_name }}</div>
+                            {% if match.job.location %}
+                                <div class="text-sm text-gray-500">📍 {{ match.job.location }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-lg font-bold text-yellow-600">{{ match.score }}%</div>
+                            {% if match.application_status %}
+                                <div class="text-sm text-gray-700">{{ match.application_status }}</div>
+                            {% else %}
+                                <div class="text-sm text-gray-600">Consider Applying</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full mt-3 bg-gray-200 rounded-full h-3">
+                        <div class="bg-yellow-500 h-3 rounded-full transition-all duration-500" style="width: {{ match.score }}%;"></div>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for skill in match.matched_skills %}
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <a href="{% url 'jobs:job_detail' match.job.pk %}" 
+                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">View Job Details</a>
+                        {% if match.can_apply %}
+                            <a href="{% url 'jobs:job_detail' match.job.pk %}#apply" 
+                               class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm font-medium">Apply</a>
+                        {% elif match.application_id %}
+                            <a href="{% url 'jobs:application_status' match.application_id %}" 
+                               class="text-green-600 hover:text-green-800 font-medium text-sm">View Application</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Low Match Jobs -->
+        {% if job_matches.low_match %}
+        <div class="bg-gray-50 border-l-4 border-gray-400 p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-gray-700 mb-4 flex items-center">
+                <span class="mr-2">💡</span>
+                Potential Matches (15-39% Match) - Skill Development Opportunities
+            </h3>
+            <div class="space-y-4">
+                {% for match in job_matches.low_match %}
+                <div class="bg-white p-4 rounded-lg shadow border-l-4 border-gray-300">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="text-xl font-bold text-gray-900">{{ match.job.title }}</div>
+                            <div class="text-gray-600">{{ match.job.company_name }}</div>
+                            {% if match.job.location %}
+                                <div class="text-sm text-gray-500">📍 {{ match.job.location }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="text-lg font-bold text-gray-600">{{ match.score }}%</div>
+                            {% if match.application_status %}
+                                <div class="text-sm text-gray-700">{{ match.application_status }}</div>
+                            {% else %}
+                                <div class="text-sm text-gray-500">Skill Gap Present</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full mt-3 bg-gray-200 rounded-full h-3">
+                        <div class="bg-gray-500 h-3 rounded-full transition-all duration-500" style="width: {{ match.score }}%;"></div>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        {% for skill in match.matched_skills %}
+                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <a href="{% url 'jobs:job_detail' match.job.pk %}" 
+                           class="text-blue-600 hover:text-blue-800 font-medium text-sm">View Job Details</a>
+                        {% if match.can_apply %}
+                            <a href="{% url 'jobs:job_detail' match.job.pk %}#apply" 
+                               class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium">Apply Anyway</a>
+                        {% elif match.application_id %}
+                            <a href="{% url 'jobs:application_status' match.application_id %}" 
+                               class="text-green-600 hover:text-green-800 font-medium text-sm">View Application</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="bg-gradient-to-r from-blue-100 to-green-100 p-6 rounded-xl shadow-lg text-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="{% url 'jobs:my_applications' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                    View My Applications
+                </a>
+                <a href="{% url 'jobs:job_list' %}" 
+                   class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                    Browse All Jobs
+                </a>
+                <a href="{% url 'upload_resume' %}" 
+                   class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition">
                     Upload Another Resume
                 </a>
             </div>
+        </div>
 
-<div class="text-center">
-    <a href="{{ resume.cv.url }}" target="_blank"
-    class="inline-block mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
-    View Uploaded Resume on Cloudinary
-</a>
-
+    {% else %}
+        <div class="bg-yellow-100 text-yellow-800 p-6 rounded-lg shadow text-center">
+            <h3 class="text-xl font-bold mb-2">No Job Matches Found</h3>
+            <p class="mb-4">No jobs match your resume skills at this time. Consider:</p>
+            <ul class="text-left max-w-md mx-auto space-y-2">
+                <li>• Updating your resume with more relevant skills</li>
+                <li>• Checking back later for new job postings</li>
+                <li>• Exploring jobs in related fields</li>
+            </ul>
+            <div class="mt-6">
+                <a href="{% url 'jobs:job_list' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                    Browse All Available Jobs
+                </a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 
+
+        
+
+            {% if cv_url %}
+            <div class="text-center">
+                <a href="{{ cv_url }}" target="_blank"
+                class="inline-block mt-4 bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                View Uploaded Resume on Cloudinary
+                </a>
+            </div>
+            {% endif %}
+
         </div>
+    </div>
     </div>
 
 </body>

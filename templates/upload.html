@@ -9,6 +9,25 @@
 </head>
 
 <body class="bg-gradient-to-br from-green-100 to-blue-200 min-h-screen flex items-center justify-center p-4">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white shadow-lg border-b z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="text-xl font-bold text-blue-600">Resume Analyzer</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <a href="{% url 'jobs:job_list' %}" class="text-gray-600 hover:text-gray-900">Browse Jobs</a>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-20">
     <div class="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full space-y-6 border-2 border-green-300">
         <h1 class="text-3xl font-bold text-green-700 text-center mb-4">Upload Resume</h1>
 
@@ -23,6 +42,7 @@
                 Upload
             </button>
         </form>
+    </div>
     </div>
 </body>
 

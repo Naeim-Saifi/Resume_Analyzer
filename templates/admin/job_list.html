@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Jobs - Resume Analyzer Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'jobs:admin_job_list' %}" class="text-xl font-bold text-blue-600">Resume Analyzer - Admin</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'jobs:post_job' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        + Post Job
+                    </a>
+                    <a href="{% url 'jobs:admin_dashboard' %}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
+                    <span class="text-gray-700">Welcome, {{ user.first_name }}!</span>
+                    <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">My Job Postings</h2>
+            <p class="text-gray-600">Manage your posted jobs and view applications</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-500 text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center">
+                    <div class="text-3xl mr-4">📊</div>
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ total_jobs }}</h3>
+                        <p class="text-blue-100">Total Jobs Posted</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-500 text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center">
+                    <div class="text-3xl mr-4">✅</div>
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ active_jobs }}</h3>
+                        <p class="text-green-100">Active Jobs</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-purple-500 text-white p-6 rounded-xl shadow-lg">
+                <div class="flex items-center">
+                    <div class="text-3xl mr-4">📋</div>
+                    <div>
+                        <h3 class="text-2xl font-bold">{{ total_applications }}</h3>
+                        <p class="text-purple-100">Total Applications</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mb-8">
+            <a href="{% url 'jobs:post_job' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                + Post New Job
+            </a>
+        </div>
+
+        <!-- Jobs List -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Your Job Postings</h3>
+            </div>
+            
+            {% if jobs %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posted</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for job in jobs %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ job.title }}</div>
+                                        <div class="text-sm text-gray-500">{{ job.skills_required|truncatechars:50 }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ job.company_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {{ job.get_experience_level_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if job.is_active %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                        {% else %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                                            {{ job.applications.count }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ job.posted_at|date:"M d, Y" }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="{% url 'jobs:job_applications' job.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                            View Applications
+                                        </a>
+                                        <a href="{% url 'jobs:job_detail' job.pk %}" class="text-green-600 hover:text-green-900">
+                                            View Job
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4">📝</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Jobs Posted Yet</h3>
+                    <p class="text-gray-600 mb-6">Start by posting your first job to attract candidates</p>
+                    <a href="{% url 'jobs:post_job' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                        Post Your First Job
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
