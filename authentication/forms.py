@@ -47,10 +47,12 @@ class SignUpForm(UserCreationForm):
         })
     )
     
+    #Meta class is used to linked the form to the model,here CustomUser is the model
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
     
+    #clean_email method is used to validate the email field
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if CustomUser.objects.filter(email=email).exists():
@@ -58,6 +60,7 @@ class SignUpForm(UserCreationForm):
         return email
     
     def save(self, commit=True):
+        #user is an instance of CustomUser model
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
