@@ -83,11 +83,8 @@ WSGI_APPLICATION = 'DjangoProject1.wsgi.application'
 from decouple import config
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# Use SQLite for development
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': "Add your db url or connection string"
 }
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
@@ -135,11 +132,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
-
+#Add your cloudinary credentials
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dmfkiyswj',
-    'API_KEY': '629543226838745',
-    'API_SECRET': 'VekDPCzA2ryY4RnP_mZ1lV5X87g',
+    'CLOUD_NAME': 'Add your cloudinary',
+    'API_KEY': 'key value',
+    'API_SECRET': 'secret key ',
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
